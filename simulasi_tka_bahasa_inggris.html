@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Latihan Soal TKA Bahasa Inggris SMA</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <div id="app" class="flex-1 flex flex-col overflow-hidden">
+        <!-- Main dynamic content will be rendered here by JS -->
+    </div>
+
+    <script>
+        // App State
+        const state = {
+            currentScreen: 'landing', // 'landing', 'quiz', 'result'
+            currentQuestionIndex: 0,
+            sidebarOpen: true,
+            activeTab: 'text', // 'text' or 'question' for mobile responsiveness
+            answers: {}, // Stores user answers: { questionId: value }
+            timer: 45 * 60, // 45 Minutes timer
+            timerInterval: null,
+            score: 0,
+            predicate: '',
+            predicateColor: '',
+            correctCount: 0
+        };
+
+        const quizData = [
+            // ================= PASSAGE 1: The Lion and the Mouse =================
+            {
+                id: 1,
+                passageId: "lion_mouse",
+                passageTitle: "The Lion and the Mouse",
+                passageText: `Once upon a time, in a thick jungle in Africa, there lived a strong and fierce lion. Every afternoon, the lion would rest under the cool shade of a big tree after walking through the forest.<br><br>
+                One day, while he was sleeping, a playful little mouse passed by. The mouse saw the lion's thick mane and was curious. He climbed up and began to jump around on the lion's head, playing in his mane.<br><br>
+                The lion woke up suddenly and was not happy at all. He quickly caught the mouse in his big paw and roared, "Who dares to wake me up?" He was very angry and almost killed the mouse.<br><br>
+                Scared and shaking, the mouse begged the lion, "Please don't kill me! I didn't mean to bother you. If you let me go, I promise I'll help you one day."<br><br>
+                The lion laughed loudly. "You? Help me? That's funny." But the lion was feeling kind, so he let the mouse go free.<br><br>
+                A few days later, the lion was walking through the jungle again when he fell into a trap. A net set by hunters caught him, and he couldn't escape. He tried to bite and tear the ropes, but they were too strong. The lion roared loudly, hoping someone would come.<br><br>
+                The mouse heard the roar and ran to help. He saw the lion trapped and quickly started to chew the ropes with his sharp teeth. After some time, the net broke, and the lion was free.<br><br>
+                The lion looked at the mouse with surprise and said, "Thank you! You really saved my life."<br><br>
+                The mouse smiled and said, "I told you I would help you one day."<br><br>
+                From that moment on, the lion and the mouse became close friends. The lion learned that even small creatures can do great things, and we all need help sometimes.`,
+                passageVisual: '🦁🐭',
+                code: "25BIGUTAPTXI03SU-250027-0083",
+                type: "single", // Single choice
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Menemukan/mengidentifikasi Informasi",
+                indicator: "Menyusun poin-poin utama dari narrative text",
+                question: "Which option best summarizes the story?",
+                options: [
+                    "Beginning: A lion was walking through the jungle.<br>Problem: The mouse got lost and couldn't find food.<br>Solution: The lion gave food to the mouse.<br>Lesson: Always be generous to those in need.",
+                    "Beginning: A mouse accidentally disturbed a sleeping lion.<br>Problem: The lion was caught in a hunter's net.<br>Solution: The mouse chewed through the net and set the lion free.<br>Lesson: Even the smallest creature can be a great help.",
+                    "Beginning: The lion and mouse were best friends.<br>Problem: The lion got hurt in a fight.<br>Solution: The mouse helped him find water.<br>Lesson: Friendship is built on adventure.",
+                    "Beginning: A mouse was building a home near a tree.<br>Problem: A storm destroyed the tree and trapped the lion.<br>Solution: The mouse called for help from the jungle.<br>Lesson: Teamwork solves big problems.",
+                    "Beginning: A lion was hungry and searching for food.<br>Problem: He couldn't catch any prey.<br>Solution: The mouse helped him find food.<br>Lesson: Hunger teaches humility."
+                ],
+                correctAnswer: 1, // index 1 (second option)
+                explanation: "Rangkuman yang tepat mencakup: gangguan tikus di awal, singa terjebak jaring pemburu di tengah (masalah), tikus menggigit tali jaring (solusi), serta pesan moral bahwa makhluk kecil pun bisa sangat membantu."
+            },
+            {
+                id: 2,
+                passageId: "lion_mouse",
+                code: "25BIGUTAPINI07SU-250027-0056",
+                type: "multiple", // MCMA
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Membuat kerangka",
+                indicator: "Menyimpulkan pesan moral narrative text",
+                question: "Which of the following statements best conveys the message of the story? (Choose more than one answer)",
+                options: [
+                    "We should never wake up a sleeping animal",
+                    "Even the small and weak can help the strong",
+                    "It's always good to ask for help when we need it",
+                    "Lions are dangerous animals and should be avoided",
+                    "Never trust anyone who plays with your hair"
+                ],
+                correctAnswer: [1, 2], // Index 1 and 2 are correct
+                explanation: "Kisah ini menunjukkan bahwa makhluk kecil/lemah pun bisa menolong yang kuat (tikus menolong singa) dan pentingnya saling membantu serta tidak meremehkan bantuan orang lain."
+            },
+            {
+                id: 3,
+                passageId: "lion_mouse",
+                code: "25BIGUTAPINI10SU-250027-0098",
+                type: "single",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan topik/ide pokok/pesan moral",
+                indicator: "Menafsirkan hubungan/kaitan antara tindakan",
+                question: "Why did the lion trust the mouse and decide to let him go instead of eating him?",
+                options: [
+                    "The lion was too tired to eat the mouse",
+                    "The mouse told the lion he might help him one day",
+                    "The lion was feeling happy to see the mouse",
+                    "The lion heard someone coming and got scared",
+                    "The mouse promised to bring food for the lion"
+                ],
+                correctAnswer: 1,
+                explanation: "Tikus memohon untuk dibebaskan dan berjanji akan membalas kebaikan singa kelak, yang menghibur singa sehingga ia memutuskan untuk melepaskannya."
+            },
+            {
+                id: 4,
+                passageId: "lion_mouse",
+                code: "25BIGUTAPINI12SU-250027-0079",
+                type: "multiple",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan hubungan sebab-akibat",
+                indicator: "Memprediksi akhir cerita setelah membaca bagian awal teks naratif",
+                question: "As you read the part where the lion let the mouse go, which of the following endings do you anticipate? (Choose more than one answer)",
+                options: [
+                    "The mouse forgets about the lion and never helps him",
+                    "The lion gets into trouble and no one helps him",
+                    "The lion becomes angry at all small animals",
+                    "The mouse spreads the lion's kindness to other animals",
+                    "The mouse becomes the lion's loyal assistant"
+                ],
+                correctAnswer: [3, 4],
+                explanation: "Prediksi akhir cerita positif yang logis setelah singa berbuat baik adalah tikus menyebarkan kebaikan singa atau menjadi asisten/teman setia singa di masa depan."
+            },
+            {
+                id: 5,
+                passageId: "lion_mouse",
+                code: "25BIGUTAEVAI16SU-250027-0103",
+                type: "multiple",
+                competency: "Evaluasi dan Apresiasi",
+                subcompetency: "Menilai kesesuaian",
+                indicator: "Menentukan bagian teks yang menggambarkan karakter utama",
+                question: "Which of the following sentences from the story help you understand the lion's character? (Choose more than one answer)",
+                options: [
+                    "\"The lion always took his afternoon nap under the shade of a big tree in the bushes.\"",
+                    "\"He caught the mouse and questioned him for interrupting his nap.\"",
+                    "\"The lion was amused at the mouse's words and decided to spare his life.\"",
+                    "\"With his sharp teeth, the mouse nibbled through the net.\"",
+                    "\"The lion thanked the mouse immensely for his help.\""
+                ],
+                correctAnswer: [2, 4], // Index 2 (amused/decided to spare) and 4 (thanked immensely) represent character traits (kindness, appreciation)
+                explanation: "Karakter singa terlihat ketika ia terhibur lalu bermurah hati melepaskan tikus, serta rasa terima kasihnya yang tulus setelah diselamatkan."
+            },
+
+            // ================= PASSAGE 2: Effective Study Techniques =================
+            {
+                id: 6,
+                passageId: "study_techniques",
+                passageTitle: "Effective Study Techniques",
+                passageText: `<strong>Effective Study Techniques Infographic Guide:</strong><br>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                        <strong class="text-indigo-700">1. Know Your Learning Style:</strong> Best reading, listening, or watching.
+                    </div>
+                    <div class="p-3 bg-purple-50 border border-purple-100 rounded-lg">
+                        <strong class="text-purple-700">2. Use the Pomodoro Technique:</strong> Study for 25 minutes, then take a 5-minute break. Keep mind fresh.
+                    </div>
+                    <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                        <strong class="text-blue-700">3. Comfortable Study Space:</strong> Quiet, well-lit, distraction-free.
+                    </div>
+                    <div class="p-3 bg-emerald-50 border border-emerald-100 rounded-lg">
+                        <strong class="text-emerald-700">4. Consistent Schedule:</strong> Study at the same time every day.
+                    </div>
+                    <div class="p-3 bg-yellow-50 border border-yellow-100 rounded-lg">
+                        <strong class="text-yellow-700">5. Take Effective Notes:</strong> Use mind maps or tables.
+                    </div>
+                    <div class="p-3 bg-rose-50 border border-rose-100 rounded-lg">
+                        <strong class="text-rose-700">6. Practice and Repeat:</strong> Review material and do practice questions regularly.
+                    </div>
+                    <div class="p-3 bg-teal-50 border border-teal-100 rounded-lg">
+                        <strong class="text-teal-700">7. Join a Study Group:</strong> Discuss topics with friends.
+                    </div>
+                    <div class="p-3 bg-cyan-50 border border-cyan-100 rounded-lg">
+                        <strong class="text-cyan-700">8. Leverage Technology:</strong> Apps/websites for flashcards and quizzes.
+                    </div>
+                    <div class="p-3 bg-orange-50 border border-orange-100 rounded-lg">
+                        <strong class="text-orange-700">9. Get Enough Sleep:</strong> Aim for 7-8 hours.
+                    </div>
+                    <div class="p-3 bg-slate-100 border border-slate-200 rounded-lg">
+                        <strong class="text-slate-700">10. Be Patient and Persistent:</strong> Learning takes time.
+                    </div>
+                </div>`,
+                passageVisual: '📚⚡',
+                code: "25BIGUTAPTXI01SU-250043-0005",
+                type: "single",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Menemukan/mengidentifikasi Informasi",
+                indicator: "Mengidentifikasi informasi penting procedure text",
+                question: "Based on the information given, we can keep our mind focused and fresh by",
+                options: [
+                    "knowing your learning style",
+                    "using Pomodoro Technique",
+                    "using online quizzes apps",
+                    "by reviewing materials",
+                    "by creating mind maps"
+                ],
+                correctAnswer: 1,
+                explanation: "Di bawah nomor 4 Pomodoro Technique, dijelaskan: 'Study for 25 minutes, then take a 5-minute break. This keeps your mind fresh and focused.'"
+            },
+            {
+                id: 7,
+                passageId: "study_techniques",
+                code: "25BIGUTAPTX102SU-250043-0077",
+                type: "category", // Custom Category Matrix
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Mengklasifikasi",
+                indicator: "Mengelompokkan orang/benda/tempat/peristiwa berdasarkan kategori tertentu",
+                question: "Based on the infographic, determine whether each study technique listed on the left is categorized as Time Management or Self Management.",
+                rows: [
+                    { id: "row1", text: "Be patient and persistent" },
+                    { id: "row2", text: "Use the Pomodoro technique" },
+                    { id: "row3", text: "Set a consistent study schedule" }
+                ],
+                categories: ["Time Management", "Self Management"],
+                correctAnswer: {
+                    "row1": "Self Management",
+                    "row2": "Time Management",
+                    "row3": "Time Management"
+                },
+                explanation: "Teknik Pomodoro dan jadwal belajar konsisten berkaitan erat dengan manajemen waktu (Time Management), sedangkan kesabaran dan kegigihan adalah bentuk pengelolaan diri (Self Management)."
+            },
+            {
+                id: 8,
+                passageId: "study_techniques",
+                code: "25BIGUTAPINI10SU-250102-0253",
+                type: "single",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Membuat kerangka",
+                indicator: "Menyusun poin utama menjadi kerangka/daftar untuk procedure text",
+                question: "From the options provided, choose the sequence that best reflects the information in the infographic \"Effective Study Techniques\".",
+                options: [
+                    "Set your goal | Watch lessons videos | Sleep well | Have group chat with friends | Eat nutritious meal",
+                    "Plan study time | Join a study group | Take long breaks | Write a to do list | Write important points",
+                    "Know your learning style | Find a quiet area | Set a timetable | Use less gadgets | Be patient and persistent",
+                    "Know your study style | Plan your study time | Practice and repeat | Take a break | Watch lessons videos",
+                    "Take notes | Join a study groups | Use different medias | Play music you like | Have good meal while studying"
+                ],
+                correctAnswer: 2, // Choice 3 fits standard sequencing steps mentioned in the graphic
+                explanation: "Opsi ke-3 paling mendekati isi infografis yang memuat 'Know your learning style' (Poin 1), 'Find a quiet area' (Poin 3 - comfortable study space), 'Set a timetable' (Poin 4 - consistent schedule), dan 'Be patient and persistent' (Poin 10)."
+            },
+            {
+                id: 9,
+                passageId: "study_techniques",
+                code: "25BIGUTAPINI07SU-250043-0058",
+                type: "multiple",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan topik, tujuan penulisan, dll",
+                indicator: "Menyimpulkan tujuan penulisan procedure text",
+                question: "Which of the following statements best reflect the author's purpose in writing the text? (Choose more than one answer)",
+                options: [
+                    "To help students find fun strategies to play after studying",
+                    "To offer students guidance on how to learn more efficiently",
+                    "To encourage students to use simple habits to improve their learning",
+                    "To explain why studying tips is difficult for most students",
+                    "To show students that they can manage their time and focus better"
+                ],
+                correctAnswer: [1, 2, 4], // Option 2, 3, 5 are correct
+                explanation: "Tujuan penulisan infografis ini adalah memberikan panduan belajar efisien, mendorong kebiasaan belajar yang baik, dan menunjukkan bahwa siswa dapat mengelola waktu dan fokus mereka."
+            },
+            {
+                id: 10,
+                passageId: "study_techniques",
+                code: "25BIGUTAEVA113SU-250043-0040",
+                type: "multiple",
+                competency: "Evaluasi dan Apresiasi",
+                subcompetency: "Menilai realitas atau fantasi",
+                indicator: "Menentukan bagian teks yang dapat diaplikasikan dalam kehidupan nyata",
+                question: "If you are preparing for an important exam and want to improve your study routine, which of the following techniques do you think can be implemented effectively in your personal study time? (Choose more than one answer)",
+                options: [
+                    "Only study when you are in a group discussion with others",
+                    "Use technology during all study sessions in or outside class",
+                    "Use the Pomodoro Technique to structure your study and break time",
+                    "Practice and repeat study material regularly to retain information",
+                    "Create a quiet and comfortable study space to improve focus"
+                ],
+                correctAnswer: [2, 3, 4],
+                explanation: "Teknik mandiri yang sangat realistis untuk persiapan ujian meliputi: Teknik Pomodoro, pengulangan materi (practice and repeat), serta menciptakan ruang belajar kondusif."
+            },
+
+            // ================= PASSAGE 3: The False Lion King =================
+            {
+                id: 11,
+                passageId: "false_lion",
+                passageTitle: "The False Lion King",
+                passageText: `Once upon a time, in Africa, there lived two lion kings. One was named Hera and the other was Shero. Hera was very strong and handsome. All the animals loved and respected him. He was a great leader. Shero was not like Hera. He had a small mane and a funny, squeaky voice. Shero liked to pretend he was as powerful as Hera. He often copied Hera's roar, but it made the other animals laugh.<br><br>
+                One day, the animals heard that some hyenas were causing trouble near the river. Hera quickly gathered his followers to stop the hyenas. Shero also wanted to come. He wanted to show everyone that he was strong too.<br><br>
+                When they reached the river, Hera roared loudly. His roar was so powerful that the hyenas got scared. Shero also tried to roar, but his voice was high and silly. The hyenas laughed at him. Their leader, Hank the Hyena, made jokes about Shero.<br><br>
+                Hera stayed calm and smiled. Shero did not give up. He said, "I am just as strong as Hera!" The hyenas laughed even louder. Shero tried to show his power by jumping on a small dirt hill. But he tripped and fell into the ground. The hyenas laughed so much they cried. Even Hera laughed a little.<br><br>
+                At the end of the day, the hyenas left, still laughing about Shero. Hera told Shero, "You are not like me, but you make everyone happy with your jokes." Shero smiled and understood that he had his own special gift.<br><br>
+                From that day, Shero became the kingdom's jester. He and Hera ruled together, one with strength, and one with laughter. The animals learned that both power and fun are important in life.`,
+                passageVisual: '🦁👑🎭',
+                code: "25BIGUTAPTXI01SU-250043-0005_false_lion",
+                type: "single",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Menemukan/mengidentifikasi Informasi",
+                indicator: "Mengidentifikasi informasi penting procedure/narrative text",
+                question: "Which statement provides the most accurate chronological summary of the story's main events?",
+                options: [
+                    "Shero falls into the dirt. | The hyenas cause trouble at the river. | Hera tells Shero that he is funny. | Shero copies Hera's roar. | Shero becomes the kingdom's funny helper.",
+                    "Hera is a strong lion king. | Shero likes to pretend to be strong. | The hyenas cause trouble near the river. | Hera scares the hyenas, but Shero makes them laugh. | Shero learns that making others happy is special.",
+                    "Hera and Shero are both strong leaders. | The hyenas come to help the lions. | Shero tells funny stories to the hyenas. | Hera is angry with Shero. | The lions and hyenas become friends.",
+                    "Shero is a strong lion king. | Hera is jealous of Shero. | The hyenas attack the lions. | Shero defeats the hyenas. | Shero becomes the new king.",
+                    "Shero wants to be king and fights Hera. | The hyenas help Shero. | Hera leaves the kingdom. | Shero becomes king. | Hera returns to forgive Shero."
+                ],
+                correctAnswer: 1,
+                explanation: "Rangkuman kronologis terbaik menceritakan Hera sebagai pemimpin kuat, Shero yang berpura-pura kuat, konflik dengan hyena di sungai, aksi lucu Shero yang membuat mereka tertawa, serta penemuan jati diri Shero di akhir."
+            },
+            {
+                id: 12,
+                passageId: "false_lion",
+                code: "25BIGUTAPINI07SU-250102-0136",
+                type: "multiple",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Mengklasifikasi",
+                indicator: "Mengelompokkan/menyimpulkan pesan moral cerita",
+                question: "What can we learn from the story of Hera and Shero? (Choose more than one answer)",
+                options: [
+                    "Everyone has something special to give, even if they are not the leader",
+                    "Being funny and making others smile is just as important as being strong",
+                    "Good friends will support you and help you see your real strengths",
+                    "Working together is better when people use their different talents",
+                    "Trying your best to help others is more important than always being perfect"
+                ],
+                correctAnswer: [0, 1, 3], // 1, 2, 4 are correct
+                explanation: "Cerita ini mengajarkan bahwa setiap orang memiliki kelebihan masing-masing, humor sama pentingnya dengan kekuatan, dan kerja sama menjadi indah berkat keberagaman talenta."
+            },
+            {
+                id: 13,
+                passageId: "false_lion",
+                code: "25BIGUTAPINI10SU-250102-0253_false_lion",
+                type: "single",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Membuat kerangka",
+                indicator: "Menyusun hubungan sebab-akibat berdasarkan isi teks",
+                question: "The hyenas laugh so much when Shero tries to roar like Hera because",
+                options: [
+                    "Shero tries to roar in a serious way and surprises the hyenas",
+                    "Shero's roar is funny, which the hyenas think he is joking",
+                    "Hera tells a joke about Shero to make the hyenas laugh",
+                    "Shero is acting like Hera, and it's absolutely brilliant",
+                    "Shero trips and falls when trying to show his strength"
+                ],
+                correctAnswer: 1,
+                explanation: "Shero mencoba mengaum tapi suaranya cempreng dan konyol, sehingga kawanan hyena tertawa terbahak-bahak menganggapnya sedang melucu."
+            },
+            {
+                id: 14,
+                passageId: "false_lion",
+                code: "25BIGUTAPINI07SU-250043-0058_false_lion",
+                type: "multiple",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan topik/ide/moral teks",
+                indicator: "Menyimpulkan pengandaian skenario alternatif dalam cerita",
+                question: "If in the beginning of the story, Shero is a strong lion with a loud roar, just like Hera. What would happened in the end of the story? (Choose more than one answer)",
+                options: [
+                    "Shero and Hera would both scare the hyenas away together",
+                    "Shero would become the king, and Hera would leave the savannah",
+                    "Shero would get respect from the other animals for his strength",
+                    "The hyenas would still laugh at Shero because he is funny",
+                    "Shero would try to take Hera's place as the only lion king"
+                ],
+                correctAnswer: [0, 2],
+                explanation: "Jika Shero kuat dan bersuara lantang sejak awal, dia akan bahu-membahu menakuti hyena bersama Hera dan dihormati oleh hewan-hewan lain karena kekuatannya."
+            },
+            {
+                id: 15,
+                passageId: "false_lion",
+                code: "25BIGUTAEVAI13SU-250043-0040_false_lion",
+                type: "multiple",
+                competency: "Evaluasi dan Apresiasi",
+                subcompetency: "Menilai realitas/fantasi",
+                indicator: "Menilai penggambaran karakteristik tokoh",
+                question: "Shero is clumsy and funny, this is shown when he .... (Choose more than one answer)",
+                options: [
+                    "scares the hyenas away with his loud and powerful roar",
+                    "makes the other animals smile by pretending to be a great king",
+                    "tries to roar like Hera, but his voice is small and makes the hyenas laugh",
+                    "walks with Hera to confront the hyenas, acting as if he is an important king too",
+                    "tells the hyenas that he is as mighty as King Hera, even though no one believes him"
+                ],
+                correctAnswer: [1, 2],
+                explanation: "Kekonyolan Shero ditunjukkan saat dia pura-pura menjadi raja yang kuat, serta ketika aumannya yang melengking konyol memicu tawa para hyena."
+            },
+
+            // ================= PASSAGE 4: The Great Barrier Reef =================
+            {
+                id: 16,
+                passageId: "barrier_reef",
+                passageTitle: "The Great Barrier Reef",
+                passageText: `The Great Barrier Reef is one of the most beautiful places in the world. It is located in the Pacific Ocean, near the northeast coast of Australia. The reef is very big. It stretches over 2,000 kilometers and can even be seen from space. There are many small coral islands and clear, warm waters around the reef.<br><br>
+                This reef is full of life. There are many kinds of colorful fish, sea turtles, dolphins, and even sharks. Coral of different shapes and colors grows under the water. Sea birds fly over the reef and nest on small islands. People can see this beauty by swimming, diving, or joining a boat tour.<br><br>
+                The colors under the water are amazing. Coral comes in red, yellow, green, and blue. Some coral looks like trees, and some looks like big round stones. Small fish swim in and out of the coral like they are playing a game. In some places, soft coral moves with the water like grass in the wind. When the sun shines, the reef looks bright and full of light. It feels like a different world under the sea.<br><br>
+                The reef is not only beautiful, but also very important. It helps protect the coast from big waves and storms. It is a home for sea animals and a place where plants can grow. Many people also get food and jobs from the sea near the reef. Without the reef, the ocean would not be the same.`,
+                passageVisual: '🪸🐠🌊',
+                code: "25BIGUTAPTX101SU-250045-0100",
+                type: "multiple",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Menemukan/mengidentifikasi Informasi",
+                indicator: "Mengidentifikasi informasi penting eksplit dalam descriptive text",
+                question: "Which of the following descriptions are mentioned clearly in the text? (Choose more than one answer)",
+                options: [
+                    "The reef was built by local communities over hundreds of years",
+                    "The reef is located in the Pacific Ocean near Australia",
+                    "The reef can help protect the coast from big waves",
+                    "The reef is home to sea turtles and dolphins",
+                    "The reef has more than 10,000 coral islands"
+                ],
+                correctAnswer: [1, 2, 3],
+                explanation: "Teks secara eksplisit menyebutkan terumbu karang ini terletak di Samudra Pasifik dekat Australia, membantu melindungi pantai dari ombak besar, serta menjadi habitat bagi penyu laut dan lumba-lumba."
+            },
+            {
+                id: 17,
+                passageId: "barrier_reef",
+                code: "25BIGUTAPINI07SU-250045-0067",
+                type: "single",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan makna frasa",
+                indicator: "Menentukan makna frasa dalam descriptive text",
+                question: "The author mentioned \"It feels like a different world under the sea\". What does the phrase \"a different world under the sea\" most likely mean?",
+                options: [
+                    "A safe place that has bright reef",
+                    "A peaceful place where people can live under water",
+                    "A colorful place that looks the same as the land",
+                    "A shining reef that is quiet",
+                    "A calm place that looks beautiful and unique"
+                ],
+                correctAnswer: 4,
+                explanation: "Frasa tersebut menunjukkan sebuah tempat di bawah laut yang menawarkan pemandangan sangat menawan, tenang, dan unik, berbeda dengan dunia darat yang biasa kita lihat."
+            },
+            {
+                id: 18,
+                passageId: "barrier_reef",
+                code: "25BIGUTAPINI07SU-250045-0072",
+                type: "single",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan topik utama",
+                indicator: "Menyimpulkan topik descriptive text",
+                question: "Which of the following best represents the main idea implied by the text?",
+                options: [
+                    "The reef is useful for fishing and shipping",
+                    "The reef is large, but not important to people",
+                    "The reef is a natural treasure that must be cared for",
+                    "The reef is only for scientists and researchers to explore",
+                    "The reef is a protected area that should be closed to visitors"
+                ],
+                correctAnswer: 2,
+                explanation: "Secara tersirat, keindahan luar biasa serta besarnya peran ekologis-ekonomis Great Barrier Reef menjadikannya kekayaan alam berharga yang harus terus dijaga."
+            },
+            {
+                id: 19,
+                passageId: "barrier_reef",
+                code: "25BIGUTAPINI06SU-250045-0060",
+                type: "single",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan detail pendukung",
+                indicator: "Menentukan fakta tambahan agar teks lebih informatif/menarik",
+                question: "Which detail would best encourage people to visit the Great Barrier Reef?",
+                options: [
+                    "Visitors can see an Australian national park",
+                    "Visitors can stay in hotels around the reef",
+                    "Visitors can get there by boat or short flights",
+                    "Visitors can protect the coral and the animals",
+                    "Visitors can see the coral by diving or swimming"
+                ],
+                correctAnswer: 4,
+                explanation: "Mengetahui bahwa pengunjung dapat berenang atau menyelam secara langsung untuk menikmati pesona terumbu karang adalah daya tarik utama yang persuasif."
+            },
+            {
+                id: 20,
+                passageId: "barrier_reef",
+                code: "25BIGUTAEVAI16SU-250045-0101",
+                type: "multiple",
+                competency: "Evaluasi dan Apresiasi",
+                subcompetency: "Menilai kesesuaian",
+                indicator: "Mengevaluasi aspek utama/aspek lain dalam descriptive text",
+                question: "Which parts of the text best support the idea that the Great Barrier Reef is both beautiful and important? (Choose more than one answer)",
+                options: [
+                    "The reef helps protect the coast from big waves",
+                    "It is home to sea turtles, dolphins, and colorful fish",
+                    "The coral reefs grow best in cold, deep water",
+                    "Some areas of the reef are damaged by starfish and warm water",
+                    "The reef was discovered by sailors in the 1800s"
+                ],
+                correctAnswer: [0, 1],
+                explanation: "Perlindungan terhadap pantai dari ombak besar (fungsi penting) dan keberadaan biota laut yang warna-warni (keindahan) adalah argumen pendukung terkuat di teks."
+            },
+
+            // ================= PASSAGE 5: Why Teenagers Should Learn to Manage Their Money =================
+            {
+                id: 21,
+                passageId: "manage_money",
+                passageTitle: "Why Teenagers Should Learn to Manage Their Money",
+                passageText: `Many young people today often spend money on things they like, such as snacks, clothes, or fun activities. But learning to handle money from a young age is very important. Good money habits can help students make a better future.<br><br>
+                Having a clear plan for the future can show teenagers how to use their money. Students should think about short-term goals, like getting a new phone, and long-term goals, like saving for college or starting a business. Writing these goals down can help students stay motivated and focused.<br><br>
+                A budget helps students see where their money goes every month. It's important to list basic needs like food and travel, and also other costs like clothes or presents. A budget makes it easier to decide how much money to save, spend, or keep for unexpected problems.<br><br>
+                Sometimes, students don't know how much they spend on small things. Keeping track of spending with notes or apps can help students understand their habits. This helps them stay within their budget and make changes if needed.<br><br>
+                Teenagers should also learn the difference between saving money and investing money. Saving is safer but slower, while investing has more risk but can earn more money. Knowing both can help students choose the best way for their money goals.<br><br>
+                To sum up, students who learn to plan, budget, track, and understand saving choices are more ready for the future. That is why learning about money should start early and be done often.<br><br>
+                <strong>Table 1. How do students manage their money?</strong>
+                <div class="overflow-x-auto my-3">
+                    <table class="min-w-full text-sm border-collapse border border-slate-200">
+                        <thead>
+                            <tr class="bg-indigo-50">
+                                <th class="border border-slate-200 p-2 text-left">Category</th>
+                                <th class="border border-slate-200 p-2 text-left">Percentage</th>
+                                <th class="border border-slate-200 p-2 text-left">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border border-slate-200 p-2 font-medium">Students who save regularly</td>
+                                <td class="border border-slate-200 p-2">45%</td>
+                                <td class="border border-slate-200 p-2">Save at least 10% of allowance</td>
+                            </tr>
+                            <tr class="bg-slate-50">
+                                <td class="border border-slate-200 p-2 font-medium">Students who track expenses</td>
+                                <td class="border border-slate-200 p-2">35%</td>
+                                <td class="border border-slate-200 p-2">Use apps or notes</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-slate-200 p-2 font-medium">Students with financial education</td>
+                                <td class="border border-slate-200 p-2">25%</td>
+                                <td class="border border-slate-200 p-2">Have learned budgeting in class</td>
+                            </tr>
+                            <tr class="bg-slate-50">
+                                <td class="border border-slate-200 p-2 font-medium">Students who often borrow from friends</td>
+                                <td class="border border-slate-200 p-2">30%</td>
+                                <td class="border border-slate-200 p-2">Due to running out of money</td>
+                            </tr>
+                            <tr>
+                                <td class="border border-slate-200 p-2 font-medium">Students who spend most on food & drinks</td>
+                                <td class="border border-slate-200 p-2">50%</td>
+                                <td class="border border-slate-200 p-2">Largest category of spending</td>
+                            </tr>
+                            <tr class="bg-slate-50">
+                                <td class="border border-slate-200 p-2 font-medium">Students who plan monthly budgets</td>
+                                <td class="border border-slate-200 p-2">28%</td>
+                                <td class="border border-slate-200 p-2">Usually better savers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>`,
+                passageVisual: '💳📉📈',
+                code: "25BIGUTAPTX102SU-250098-0260",
+                type: "category",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Mengklasifikasi",
+                indicator: "Mengelompokkan orang, benda/tempat/peristiwa dalam analytical exposition text",
+                question: "Based on the text, choose the activity that best fits the description (Short-term or Long-term financial goals).",
+                rows: [
+                    { id: "row_m1", text: "Saving money for university" },
+                    { id: "row_m2", text: "Saving to buy a new phone" },
+                    { id: "row_m3", text: "Starting a business" }
+                ],
+                categories: ["Short-term financial goals", "Long-term financial goals"],
+                correctAnswer: {
+                    "row_m1": "Long-term financial goals",
+                    "row_m2": "Short-term financial goals",
+                    "row_m3": "Long-term financial goals"
+                },
+                explanation: "Membeli handphone baru dikelompokkan ke target jangka pendek (short-term), sedangkan menabung untuk kuliah di universitas dan merintis usaha/bisnis dikategorikan sebagai target jangka panjang (long-term)."
+            },
+            {
+                id: 22,
+                passageId: "manage_money",
+                code: "25BIGUTAPTXI05SU-250098-0166",
+                type: "multiple",
+                competency: "Pemahaman Tekstual",
+                subcompetency: "Mensintesis",
+                indicator: "Menarik kesimpulan berdasarkan informasi dari sumber berbeda",
+                question: "According to the text, which of the following actions support smart money management for students? (Choose more than one answer)",
+                options: [
+                    "Tracking daily expenses using a notebook or app",
+                    "Spending more money than the monthly budget allows",
+                    "Setting financial goals for the short and long term",
+                    "Borrowing money whenever there is not enough left",
+                    "Dividing money into saving, spending, and emergency funds"
+                ],
+                correctAnswer: [0, 2, 4],
+                explanation: "Tindakan bijak mengelola uang berdasarkan teks mencakup pencatatan pengeluaran harian, penentuan target keuangan jangka panjang/pendek, serta pembagian anggaran untuk ditabung, dibelanjakan, dan dana darurat."
+            },
+            {
+                id: 23,
+                passageId: "manage_money",
+                code: "25BIGUTAPINIO7SU-250098-0251",
+                type: "multiple",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan sasaran pembaca utama",
+                indicator: "Menarik kesimpulan berdasarkan informasi implisit dalam analytical exposition text",
+                question: "Who is most likely to be the target audience of this text? (Choose more than one answer)",
+                options: [
+                    "Teenagers who are learning to manage their money",
+                    "Parents looking for tips on how to control their children's spending",
+                    "Students who want to plan for their financial future",
+                    "High school readers who need to understand saving and budgeting",
+                    "Bankers and financial experts"
+                ],
+                correctAnswer: [0, 2, 3],
+                explanation: "Teks ini ditujukan khusus untuk remaja, murid sekolah menengah (high school), serta pelajar yang sedang belajar menyusun rencana keuangan masa depan mereka."
+            },
+            {
+                id: 24,
+                passageId: "manage_money",
+                code: "25BIGUTAPINI06SU-250098-0223",
+                type: "single",
+                competency: "Pemahaman Inferensial",
+                subcompetency: "Menyimpulkan perbandingan",
+                indicator: "Menentukan fakta tambahan agar teks lebih informatif/menarik/persuasif",
+                question: "Which information would make the text more informative about student spending habits?",
+                options: [
+                    "A paragraph about the history of financial education in schools",
+                    "A table showing common monthly high school students expenses",
+                    "A graph comparing saving habits between teenagers and adults",
+                    "A chart listing popular entertainment choices among students",
+                    "A paragraph about students' experiences in managing budget"
+                ],
+                correctAnswer: 1,
+                explanation: "Tabel pengeluaran bulanan rata-rata anak SMA akan memberikan gambaran konkret yang memperkaya penjelasan mengenai kebiasaan belanja pelajar."
+            },
+            {
+                id: 25,
+                passageId: "manage_money",
+                code: "25BIGUTAEVAI14SU-250098-0175",
+                type: "multiple",
+                competency: "Evaluasi dan Apresiasi",
+                subcompetency: "Menilai fakta atau opini",
+                indicator: "Menilai fakta/opini dalam analytical exposition text",
+                question: "Which of the following statements are supported by clear data or facts in the text and table? (Choose more than one answer)",
+                options: [
+                    "45% of students save money regularly",
+                    "Tracking expenses can help understand spending habits",
+                    "Most students do not care about money at all",
+                    "Saving 10% of allowance is a good practice",
+                    "Spending on fun activities is always better than saving"
+                ],
+                correctAnswer: [0, 1, 3],
+                explanation: "Data statistik di Tabel 1 menunjukkan fakta jelas bahwa 45% siswa rajin menabung (menyisihkan minimal 10% dari uang saku), serta didukung argumen bahwa mencatat pengeluaran membantu memahami pola belanja."
+            }
+        ];
+
+        // Helpers for DOM manipulation
+        const $ = (selector) => document.querySelector(selector);
+
+        // Timer control
+        function startTimer() {
+            if (state.timerInterval) clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                if (state.timer > 0) {
+                    state.timer--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(state.timerInterval);
+                    submitExam(true); // Auto submit when time runs out
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(state.timer / 60);
+            const seconds = state.timer % 60;
+            const timerEl = $('#timer-text');
+            if (timerEl) {
+                timerEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                // Red alert below 5 mins
+                if (state.timer < 300) {
+                    timerEl.parentElement.classList.remove('bg-indigo-50', 'text-indigo-600');
+                    timerEl.parentElement.classList.add('bg-rose-50', 'text-rose-600', 'animate-pulse');
+                }
+            }
+        }
+
+        function renderScreen() {
+            const root = $('#app');
+            root.innerHTML = '';
+
+            if (state.currentScreen === 'landing') {
+                renderLandingScreen(root);
+            } else if (state.currentScreen === 'quiz') {
+                renderQuizScreen(root);
+                updateTimerDisplay();
+            } else if (state.currentScreen === 'result') {
+                renderResultScreen(root);
+            }
+            // Re-bind Lucide icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        }
+
+        // --- LANDING SCREEN ---
+        function renderLandingScreen(container) {
+            container.className = "flex-1 flex items-center justify-center p-4 md:p-8 bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-950 text-white min-h-screen";
+            container.innerHTML = `
+                <div class="max-w-4xl w-full text-center space-y-8 bg-slate-900/60 p-6 md:p-12 rounded-3xl border border-slate-800 backdrop-blur-md shadow-2xl">
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-sm font-semibold tracking-wide uppercase mx-auto">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Simulasi CAT Resmi
+                        </div>
+                        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                            Aplikasi Latihan Soal TKA <br>
+                            <span class="bg-gradient-to-r from-indigo-400 via-sky-400 to-indigo-400 bg-clip-text text-transparent">Bahasa Inggris SMA/MA/SMK</span>
+                        </h1>
+                        <p class="text-slate-400 max-w-2xl mx-auto text-base md:text-lg">
+                            Selamat datang di portal simulasi persiapan evaluasi mandiri mata pelajaran Bahasa Inggris (Wajib) Kurikulum Merdeka. Selesaikan latihan ini untuk mengukur kesiapan akademik Anda secara akurat.
+                        </p>
+                    </div>
+
+                    <!-- Informational Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
+                        <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-2xl flex items-start gap-3">
+                            <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg shrink-0">
+                                <i data-lucide="help-circle" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-white">25 Soal Lengkap</h3>
+                                <p class="text-xs text-slate-400 mt-1">Sesuai teks & infografis bahan ajar nasional.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-2xl flex items-start gap-3">
+                            <div class="p-2 bg-sky-500/10 text-sky-400 rounded-lg shrink-0">
+                                <i data-lucide="clock" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-white">Waktu 45 Menit</h3>
+                                <p class="text-xs text-slate-400 mt-1">Menguji ketangkasan dan fokus berpikir cepat.</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-2xl flex items-start gap-3">
+                            <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg shrink-0">
+                                <i data-lucide="award" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-white">Skor Standar TKA</h3>
+                                <p class="text-xs text-slate-400 mt-1">Hasil evaluasi predikat BAIK, MEMADAI & KURANG.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4">
+                        <button id="btn-start" class="group px-8 py-4 bg-gradient-to-r from-indigo-500 to-sky-500 hover:from-indigo-600 hover:to-sky-600 text-white font-semibold text-lg rounded-2xl shadow-xl shadow-indigo-500/20 transform hover:-translate-y-0.5 transition-all flex items-center gap-3 mx-auto">
+                            MULAI LATIHAN NOW
+                            <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                        </button>
+                    </div>
+
+                    <div class="text-xs text-slate-500 max-w-md mx-auto pt-4 border-t border-slate-800">
+                        Sistem mencakup Pilihan Ganda Tunggal, Pilihan Ganda Kompleks Multi-Opsi, dan Kategori Matriks untuk merangsang literasi kognitif tingkat tinggi (HOTS).
+                    </div>
+                </div>
+            `;
+
+            // Start test action
+            $('#btn-start').addEventListener('click', () => {
+                state.currentScreen = 'quiz';
+                state.currentQuestionIndex = 0;
+                state.answers = {};
+                state.timer = 45 * 60; // reset
+                startTimer();
+                renderScreen();
+            });
+        }
+
+        // --- QUIZ SCREEN (MAIN TEST INTERFACE) ---
+        function renderQuizScreen(container) {
+            container.className = "flex-1 flex flex-col md:flex-row overflow-hidden bg-slate-50";
+
+            // Sidebar Navigation (Collapsible)
+            const sidebarHtml = `
+                <div id="quiz-sidebar" class="transition-all duration-300 ${state.sidebarOpen ? 'w-full md:w-80 border-b md:border-b-0 md:border-r border-slate-200' : 'w-0 overflow-hidden md:w-0 md:border-r-0'} bg-white flex flex-col h-auto md:h-full shrink-0">
+                    <!-- Sidebar Header -->
+                    <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="p-1.5 bg-indigo-500 text-white rounded-lg">
+                                <i data-lucide="book-open" class="w-4 h-4"></i>
+                            </div>
+                            <span class="font-bold text-slate-800 tracking-tight text-sm">Navigasi Soal</span>
+                        </div>
+                        <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-md">TKA SMA</span>
+                    </div>
+
+                    <!-- Question Grid -->
+                    <div class="p-4 flex-1 overflow-y-auto">
+                        <p class="text-xs text-slate-400 mb-3 uppercase tracking-wider font-bold">Daftar Lembar Soal</p>
+                        <div class="grid grid-cols-5 gap-2" id="grid-navigation">
+                            ${quizData.map((q, idx) => {
+                                const isCurrent = idx === state.currentQuestionIndex;
+                                const isAnswered = state.answers[q.id] !== undefined && (typeof state.answers[q.id] === 'object' ? Object.keys(state.answers[q.id]).length > 0 : state.answers[q.id] !== '');
+                                
+                                let btnClass = "border border-slate-200 text-slate-600 hover:bg-slate-100";
+                                if (isCurrent) {
+                                    btnClass = "bg-indigo-600 text-white font-bold ring-2 ring-indigo-600 ring-offset-2";
+                                } else if (isAnswered) {
+                                    btnClass = "bg-indigo-50 border-indigo-200 text-indigo-700 font-semibold";
+                                }
+
+                                return `
+                                    <button onclick="goToQuestion(${idx})" class="h-10 text-sm rounded-lg flex items-center justify-center transition-all ${btnClass}">
+                                        ${idx + 1}
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Bottom Info/Submit -->
+                    <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-3">
+                        <div class="flex items-center justify-between text-xs text-slate-500">
+                            <span>Terjawab: <strong class="text-slate-800">${Object.keys(state.answers).length}</strong> / 25</span>
+                            <span>Sisa Waktu: <strong class="text-indigo-600" id="sidebar-time-left">--:--</strong></span>
+                        </div>
+                        <button onclick="confirmSubmit()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i> KIRIM JAWABAN
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Active Question content
+            const currentQ = quizData[state.currentQuestionIndex];
+
+            // Render Split Pane layout: Passage left, Question right
+            const mainContentHtml = `
+                <div class="flex-1 flex flex-col overflow-hidden">
+                    <!-- Top Navigation Bar -->
+                    <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shrink-0">
+                        <div class="flex items-center gap-3">
+                            <button onclick="toggleSidebar()" class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg" title="Sembunyikan Menu">
+                                <i data-lucide="menu" class="w-5 h-5"></i>
+                            </button>
+                            <div>
+                                <h2 class="font-bold text-slate-800 text-xs md:text-sm tracking-tight truncate max-w-xs md:max-w-md">LATIHAN TKA BAHASA INGGRIS 2025</h2>
+                                <p class="text-[11px] text-slate-500">Soal ${state.currentQuestionIndex + 1} dari 25</p>
+                            </div>
+                        </div>
+
+                        <!-- Timer and Action Buttons -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-xs md:text-sm">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                <span id="timer-text">--:--</span>
+                            </div>
+                            <button onclick="confirmSubmit()" class="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs md:text-sm rounded-lg transition-all shadow-sm">
+                                <i data-lucide="check-square" class="w-4 h-4"></i> KIRIM
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Responsive Tabs for Mobile (Passage / Question toggles) -->
+                    <div class="flex border-b border-slate-200 bg-white md:hidden shrink-0">
+                        <button onclick="setMobileTab('text')" class="flex-1 py-2.5 text-center font-semibold text-xs border-b-2 ${state.activeTab === 'text' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'}">
+                            📖 TEKS BACAAN
+                        </button>
+                        <button onclick="setMobileTab('question')" class="flex-1 py-2.5 text-center font-semibold text-xs border-b-2 ${state.activeTab === 'question' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'}">
+                            ❓ PERTANYAAN
+                        </button>
+                    </div>
+
+                    <!-- Left & Right Panel Container -->
+                    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+                        <!-- PANEL KIRI: Teks Bacaan / Visual -->
+                        <div class="flex-1 md:w-1/2 bg-white p-4 md:p-6 overflow-y-auto border-r border-slate-200 ${state.activeTab === 'text' ? 'block' : 'hidden md:block'}">
+                            <div class="max-w-prose mx-auto space-y-4">
+                                <div class="flex items-center gap-2 text-indigo-600 bg-indigo-50/50 px-3 py-1.5 rounded-lg w-fit">
+                                    <span class="text-xl">${currentQ.passageVisual || '📝'}</span>
+                                    <span class="text-xs font-bold uppercase tracking-wider">TEKS BACAAN</span>
+                                </div>
+                                <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">${currentQ.passageTitle || 'Informasi Pendukung'}</h3>
+                                <hr class="border-slate-100">
+                                <div class="text-sm md:text-base text-slate-700 leading-relaxed space-y-4 font-normal">
+                                    ${currentQ.passageText || getPassageTextForQuestion(currentQ.passageId)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PANEL KANAN: Lembar Soal -->
+                        <div class="flex-1 md:w-1/2 p-4 md:p-6 overflow-y-auto flex flex-col ${state.activeTab === 'question' ? 'block' : 'hidden md:block'} bg-slate-50">
+                            <div class="max-w-2xl mx-auto w-full flex-1 flex flex-col space-y-4">
+                                
+                                <!-- Metadata Soal -->
+                                <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-3.5 space-y-1">
+                                    <div class="flex items-center justify-between text-[11px] font-bold uppercase text-indigo-700">
+                                        <span>Kode: ${currentQ.code}</span>
+                                        <span class="bg-indigo-100 px-2 py-0.5 rounded text-[10px]">${getFriendlyType(currentQ.type)}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600"><strong class="text-slate-700">Kompetensi:</strong> ${currentQ.competency} &middot; ${currentQ.subcompetency}</p>
+                                    <p class="text-[11px] text-slate-500 italic"><strong class="text-slate-600 font-semibold">Indikator:</strong> ${currentQ.indicator}</p>
+                                </div>
+
+                                <!-- Pertanyaan -->
+                                <div class="space-y-4 flex-1">
+                                    <h4 class="text-base md:text-lg font-bold text-slate-900 leading-snug">
+                                        <span class="text-indigo-600">${state.currentQuestionIndex + 1}.</span> ${currentQ.question}
+                                    </h4>
+
+                                    <!-- Render area jawaban sesuai jenis soal -->
+                                    <div class="space-y-2.5 pt-2">
+                                        ${renderAnswerOptions(currentQ)}
+                                    </div>
+                                </div>
+
+                                <!-- Footer Navigasi Soal (Previous / Next) -->
+                                <div class="pt-6 border-t border-slate-200 flex items-center justify-between shrink-0">
+                                    <button onclick="prevQuestion()" ${state.currentQuestionIndex === 0 ? 'disabled' : ''} class="px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white text-slate-700 font-semibold text-sm rounded-xl transition-all shadow-sm flex items-center gap-1.5">
+                                        <i data-lucide="chevron-left" class="w-4 h-4"></i> Sebelumnya
+                                    </button>
+                                    
+                                    ${state.currentQuestionIndex === quizData.length - 1 ? `
+                                        <button onclick="confirmSubmit()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/10 transition-all flex items-center gap-2">
+                                            KIRIM <i data-lucide="send" class="w-4 h-4"></i>
+                                        </button>
+                                    ` : `
+                                        <button onclick="nextQuestion()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-auto">
+                                            Selanjutnya <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                        </button>
+                                    `}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Combine sidebar and main view
+            container.innerHTML = sidebarHtml + mainContentHtml;
+        }
+
+        // --- RENDER ANSWER INPUTS BY QUESTION TYPE ---
+        function renderAnswerOptions(q) {
+            const currentAnswer = state.answers[q.id];
+
+            if (q.type === 'single') {
+                return q.options.map((option, idx) => {
+                    const letter = String.fromCharCode(65 + idx);
+                    const isChecked = currentAnswer === idx;
+                    return `
+                        <label class="flex items-start gap-3 p-3.5 bg-white hover:bg-indigo-50/40 border ${isChecked ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-200'} rounded-xl cursor-pointer transition-all shadow-sm group">
+                            <input type="radio" name="q_${q.id}" value="${idx}" ${isChecked ? 'checked' : ''} onchange="saveAnswer(${q.id}, ${idx})" class="mt-1 h-4 w-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                            <div class="text-sm">
+                                <span class="font-bold text-indigo-600 mr-1.5">${letter}.</span>
+                                <span class="text-slate-700 group-hover:text-slate-900">${option}</span>
+                            </div>
+                        </label>
+                    `;
+                }).join('');
+            } 
+            
+            else if (q.type === 'multiple') {
+                return `
+                    <div class="mb-2 px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-lg text-amber-700 font-medium text-xs flex items-center gap-1.5">
+                        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                        Pilihlah seluruh jawaban yang menurut Anda benar!
+                    </div>
+                    ${q.options.map((option, idx) => {
+                        const letter = String.fromCharCode(65 + idx);
+                        const answersList = currentAnswer || [];
+                        const isChecked = answersList.includes(idx);
+                        return `
+                            <label class="flex items-start gap-3 p-3.5 bg-white hover:bg-indigo-50/40 border ${isChecked ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-200'} rounded-xl cursor-pointer transition-all shadow-sm group">
+                                <input type="checkbox" value="${idx}" ${isChecked ? 'checked' : ''} onchange="saveMultipleAnswer(${q.id}, ${idx})" class="mt-1 h-4 w-4 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                <div class="text-sm">
+                                    <span class="font-bold text-indigo-600 mr-1.5">${letter}.</span>
+                                    <span class="text-slate-700 group-hover:text-slate-900">${option}</span>
+                                </div>
+                            </label>
+                        `;
+                    }).join('')}
+                `;
+            } 
+            
+            else if (q.type === 'category') {
+                const matrixAnswers = currentAnswer || {};
+                return `
+                    <div class="mb-2 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-lg text-blue-700 font-medium text-xs flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                        Tentukan klasifikasi yang paling sesuai untuk setiap pernyataan di bawah ini.
+                    </div>
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                                        <th class="p-3 text-left font-bold">Pernyataan / Teknik</th>
+                                        ${q.categories.map(cat => `
+                                            <th class="p-3 text-center font-bold whitespace-nowrap">${cat}</th>
+                                        `).join('')}
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    ${q.rows.map(row => {
+                                        return `
+                                            <tr>
+                                                <td class="p-3 font-medium text-slate-700">${row.text}</td>
+                                                ${q.categories.map(cat => {
+                                                    const isChecked = matrixAnswers[row.id] === cat;
+                                                    return `
+                                                        <td class="p-3 text-center">
+                                                            <label class="inline-block p-1 cursor-pointer">
+                                                                <input type="radio" name="matrix_${q.id}_${row.id}" value="${cat}" ${isChecked ? 'checked' : ''} onchange="saveMatrixAnswer(${q.id}, '${row.id}', '${cat}')" class="h-4.5 w-4.5 text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                                                            </label>
+                                                        </td>
+                                                    `;
+                                                }).join('')}
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Get fallback passage text for related questions (for safety)
+        function getPassageTextForQuestion(passageId) {
+            const found = quizData.find(q => q.passageId === passageId && q.passageText);
+            return found ? found.passageText : "Teks pendukung tidak ditemukan.";
+        }
+
+        function getFriendlyType(type) {
+            switch(type) {
+                case 'single': return 'Pilihan Ganda';
+                case 'multiple': return 'Pilihan Ganda Kompleks';
+                case 'category': return 'Klasifikasi Matriks';
+                default: return 'Soal';
+            }
+        }
+
+        // Action Handlers
+        window.goToQuestion = function(index) {
+            state.currentQuestionIndex = index;
+            state.activeTab = 'question'; // default view to question on mobile navigate
+            renderScreen();
+        };
+
+        window.nextQuestion = function() {
+            if (state.currentQuestionIndex < quizData.length - 1) {
+                state.currentQuestionIndex++;
+                state.activeTab = 'question';
+                renderScreen();
+            }
+        };
+
+        window.prevQuestion = function() {
+            if (state.currentQuestionIndex > 0) {
+                state.currentQuestionIndex--;
+                state.activeTab = 'question';
+                renderScreen();
+            }
+        };
+
+        window.toggleSidebar = function() {
+            state.sidebarOpen = !state.sidebarOpen;
+            renderScreen();
+        };
+
+        window.setMobileTab = function(tab) {
+            state.activeTab = tab;
+            renderScreen();
+        };
+
+        // Saving Answers
+        window.saveAnswer = function(questionId, value) {
+            state.answers[questionId] = value;
+            // Visual grid update without full refresh to feel instant
+            updateNavigationGrid();
+        };
+
+        window.saveMultipleAnswer = function(questionId, optionIndex) {
+            if (!state.answers[questionId]) {
+                state.answers[questionId] = [];
+            }
+            const currentAnswers = state.answers[questionId];
+            const idx = currentAnswers.indexOf(optionIndex);
+            if (idx > -1) {
+                currentAnswers.splice(idx, 1); // remove
+            } else {
+                currentAnswers.push(optionIndex); // add
+            }
+            updateNavigationGrid();
+        };
+
+        window.saveMatrixAnswer = function(questionId, rowId, category) {
+            if (!state.answers[questionId]) {
+                state.answers[questionId] = {};
+            }
+            state.answers[questionId][rowId] = category;
+            updateNavigationGrid();
+        };
+
+        function updateNavigationGrid() {
+            // Re-render sidebar navigation area only to prevent input focus loss
+            const navEl = $('#grid-navigation');
+            if (navEl) {
+                navEl.innerHTML = quizData.map((q, idx) => {
+                    const isCurrent = idx === state.currentQuestionIndex;
+                    const isAnswered = state.answers[q.id] !== undefined && (
+                        typeof state.answers[q.id] === 'object' 
+                        ? Object.keys(state.answers[q.id]).length > 0 
+                        : state.answers[q.id] !== ''
+                    );
+                    
+                    let btnClass = "border border-slate-200 text-slate-600 hover:bg-slate-100";
+                    if (isCurrent) {
+                        btnClass = "bg-indigo-600 text-white font-bold ring-2 ring-indigo-600 ring-offset-2";
+                    } else if (isAnswered) {
+                        btnClass = "bg-indigo-50 border-indigo-200 text-indigo-700 font-semibold";
+                    }
+
+                    return `
+                        <button onclick="goToQuestion(${idx})" class="h-10 text-sm rounded-lg flex items-center justify-center transition-all ${btnClass}">
+                            ${idx + 1}
+                        </button>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Custom interactive dialogs to avoid standard alerts
+        function showCustomModal(options) {
+            const modalContainer = document.createElement('div');
+            modalContainer.className = "fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in";
+            modalContainer.id = "custom-modal";
+            modalContainer.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-100 transform scale-100 transition-transform">
+                    <div class="flex items-center gap-3">
+                        <div class="p-3 bg-${options.accentColor || 'indigo'}-50 text-${options.accentColor || 'indigo'}-600 rounded-full">
+                            <i data-lucide="${options.icon || 'info'}" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-900">${options.title}</h3>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed">${options.message}</p>
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        ${options.showCancel ? `
+                            <button id="modal-cancel" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-all">Batal</button>
+                        ` : ''}
+                        <button id="modal-confirm" class="px-5 py-2 text-sm font-semibold text-white bg-${options.accentColor || 'indigo'}-600 hover:bg-${options.accentColor || 'indigo'}-700 rounded-xl shadow-md transition-all">${options.confirmText || 'Ya, Lanjutkan'}</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalContainer);
+            if (window.lucide) window.lucide.createIcons();
+
+            return new Promise((resolve) => {
+                const modal = $('#custom-modal');
+                const cancelBtn = $('#modal-cancel');
+                const confirmBtn = $('#modal-confirm');
+
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', () => {
+                        modal.remove();
+                        resolve(false);
+                    });
+                }
+                confirmBtn.addEventListener('click', () => {
+                    modal.remove();
+                    resolve(true);
+                });
+            });
+        }
+
+        window.confirmSubmit = async function() {
+            const unansweredCount = quizData.length - Object.keys(state.answers).length;
+            const message = unansweredCount > 0 
+                ? `Masih ada <strong class="text-rose-600">${unansweredCount} soal yang belum Anda jawab</strong>. Apakah Anda yakin ingin mengakhiri ujian dan melihat hasil skor?`
+                : "Semua soal telah dijawab. Klik kirim untuk melihat analisis skor dan evaluasi belajar Anda.";
+
+            const confirmed = await showCustomModal({
+                title: "Kirim Jawaban Anda?",
+                message: message,
+                icon: "help-circle",
+                accentColor: unansweredCount > 0 ? "rose" : "indigo",
+                showCancel: true,
+                confirmText: "Kirim Sekarang"
+            });
+
+            if (confirmed) {
+                submitExam();
+            }
+        };
+
+        function submitExam(isAuto = false) {
+            clearInterval(state.timerInterval);
+
+            // Calculate Score (Max 100)
+            // 25 questions, each represents 4 points
+            let correctQuestions = 0;
+
+            quizData.forEach(q => {
+                const userAnswer = state.answers[q.id];
+
+                if (q.type === 'single') {
+                    if (userAnswer === q.correctAnswer) {
+                        correctQuestions++;
+                    }
+                } 
+                
+                else if (q.type === 'multiple') {
+                    // Check if multiple choice list exactly matches the answer keys
+                    if (Array.isArray(userAnswer)) {
+                        const sortedUser = [...userAnswer].sort();
+                        const sortedCorrect = [...q.correctAnswer].sort();
+                        const isExactlyEqual = sortedUser.length === sortedCorrect.length && sortedUser.every((v, i) => v === sortedCorrect[i]);
+                        if (isExactlyEqual) correctQuestions++;
+                    }
+                } 
+                
+                else if (q.type === 'category') {
+                    // Matrix match check: all matrix answers must be correct
+                    if (userAnswer && typeof userAnswer === 'object') {
+                        let isAllCorrect = true;
+                        const rowKeys = Object.keys(q.correctAnswer);
+                        for (let rKey of rowKeys) {
+                            if (userAnswer[rKey] !== q.correctAnswer[rKey]) {
+                                isAllCorrect = false;
+                                break;
+                            }
+                        }
+                        if (isAllCorrect) correctQuestions++;
+                    }
+                }
+            });
+
+            state.score = correctQuestions * 4; // Each question is 4 points (25 * 4 = 100)
+            state.correctCount = correctQuestions;
+
+            // standard TKA predicates
+            if (state.score >= 80) {
+                state.predicate = "BAIK";
+                state.predicateColor = "emerald";
+                state.predicateBg = "bg-emerald-50 text-emerald-700 border-emerald-200";
+            } else if (state.score >= 60) {
+                state.predicate = "MEMADAI";
+                state.predicateColor = "amber";
+                state.predicateBg = "bg-amber-50 text-amber-700 border-amber-200";
+            } else {
+                state.predicate = "KURANG";
+                state.predicateColor = "rose";
+                state.predicateBg = "bg-rose-50 text-rose-700 border-rose-200";
+            }
+
+            state.currentScreen = 'result';
+            renderScreen();
+        }
+
+        // --- RESULT & EVALUATION SCREEN ---
+        function renderResultScreen(container) {
+            container.className = "flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8";
+
+            let encouragingMessage = "";
+            let medalEmoji = "🏆";
+            if (state.predicate === "BAIK") {
+                encouragingMessage = "Luar biasa! Penguasaan materi Bahasa Inggris Anda sangat kuat dan matang. Pertahankan performa akademis tingkat tinggi ini!";
+                medalEmoji = "👑";
+            } else if (state.predicate === "MEMADAI") {
+                encouragingMessage = "Kerja bagus. Pemahaman Anda sudah cukup memadai untuk menghadapi ujian TKA SMA, namun beberapa poin evaluasi masih bisa ditingkatkan lagi.";
+                medalEmoji = "⭐";
+            } else {
+                encouragingMessage = "Jangan berkecil hati. Nilai ini menunjukkan Anda memerlukan waktu ekstra untuk mempelajari kembali struktur kalimat dasar, kosakata, dan teknik skimming teks bacaan.";
+                medalEmoji = "💪";
+            }
+
+            container.innerHTML = `
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <!-- Score Header Widget -->
+                    <div class="bg-white border border-slate-200 p-6 md:p-10 rounded-3xl shadow-xl flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                        <!-- Left decoration graphic -->
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-indigo-50 rounded-full translate-x-12 -translate-y-12 shrink-0 z-0 opacity-60"></div>
+                        
+                        <!-- Circular Score SVG -->
+                        <div class="relative shrink-0 w-40 h-40 flex items-center justify-center z-10">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="80" cy="80" r="70" class="stroke-slate-100" stroke-width="12" fill="transparent"/>
+                                <circle cx="80" cy="80" r="70" class="stroke-indigo-600" stroke-width="12" fill="transparent"
+                                    stroke-dasharray="${2 * Math.PI * 70}"
+                                    stroke-dashoffset="${2 * Math.PI * 70 * (1 - state.score / 100)}"
+                                    stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute flex flex-col items-center">
+                                <span class="text-4xl font-extrabold text-slate-900 tracking-tight">${state.score}</span>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Skor TKA</span>
+                            </div>
+                        </div>
+
+                        <!-- Predicate & Message info -->
+                        <div class="flex-1 space-y-4 z-10 text-center md:text-left">
+                            <div class="flex flex-col sm:flex-row items-center gap-2">
+                                <span class="text-xs uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-slate-100 text-slate-600">PREDIKAT KOGNITIF</span>
+                                <div class="px-3.5 py-1 text-sm font-bold border rounded-full ${state.predicateBg} flex items-center gap-1">
+                                    <span>${medalEmoji}</span>
+                                    <span>${state.predicate}</span>
+                                </div>
+                            </div>
+                            
+                            <h2 class="text-2xl font-extrabold text-slate-900 leading-snug">
+                                Evaluasi Hasil Penilaian Mandiri TKA SMA
+                            </h2>
+                            <p class="text-sm text-slate-600 leading-relaxed max-w-xl">
+                                ${encouragingMessage}
+                            </p>
+                            <div class="flex items-center justify-center md:justify-start gap-4 text-xs font-semibold text-slate-500">
+                                <span class="flex items-center gap-1"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> Terjawab Benar: <strong>${state.correctCount}</strong> / 25</span>
+                                <span class="flex items-center gap-1"><i data-lucide="award" class="w-4 h-4 text-indigo-500"></i> Akurasi: <strong>${(state.correctCount / 25 * 100).toFixed(0)}%</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Retest and Review CTA buttons -->
+                    <div class="flex flex-col sm:flex-row items-center gap-4 justify-between">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="search" class="w-5 h-5 text-indigo-500"></i>
+                            Analisis Jawaban & Kunci Soal
+                        </h3>
+                        <button onclick="restartTest()" class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-semibold rounded-2xl shadow-lg shadow-indigo-500/10 transition-all flex items-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i> ULANGI UJIAN
+                        </button>
+                    </div>
+
+                    <!-- Review List Section -->
+                    <div class="space-y-4">
+                        ${quizData.map((q, idx) => {
+                            const userAnswer = state.answers[q.id];
+                            let isCorrect = false;
+
+                            // Re-calculate individual correctness for display
+                            if (q.type === 'single') {
+                                isCorrect = userAnswer === q.correctAnswer;
+                            } else if (q.type === 'multiple') {
+                                if (Array.isArray(userAnswer)) {
+                                    const sortedUser = [...userAnswer].sort();
+                                    const sortedCorrect = [...q.correctAnswer].sort();
+                                    isCorrect = sortedUser.length === sortedCorrect.length && sortedUser.every((v, i) => v === sortedCorrect[i]);
+                                }
+                            } else if (q.type === 'category') {
+                                if (userAnswer && typeof userAnswer === 'object') {
+                                    isCorrect = true;
+                                    const rowKeys = Object.keys(q.correctAnswer);
+                                    for (let rKey of rowKeys) {
+                                        if (userAnswer[rKey] !== q.correctAnswer[rKey]) {
+                                            isCorrect = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            return `
+                                <div class="bg-white border ${isCorrect ? 'border-emerald-100' : 'border-rose-100'} rounded-2xl p-5 shadow-sm space-y-3 relative overflow-hidden">
+                                    <div class="absolute top-0 right-0 px-4 py-1.5 rounded-bl-xl text-xs font-bold ${isCorrect ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'} flex items-center gap-1">
+                                        <i data-lucide="${isCorrect ? 'check-circle' : 'x-circle'}" class="w-3.5 h-3.5"></i>
+                                        <span>${isCorrect ? 'Benar' : 'Salah'}</span>
+                                    </div>
+
+                                    <div class="text-[11px] font-bold text-slate-400">SOAL NO. ${idx + 1} &middot; ${getFriendlyType(q.type)}</div>
+                                    <p class="font-semibold text-slate-800 leading-snug pr-16">${q.question}</p>
+                                    
+                                    <!-- Rendered Selection Review -->
+                                    <div class="text-xs space-y-2 pt-1">
+                                        ${renderAnswerReviewHtml(q, userAnswer)}
+                                    </div>
+
+                                    <!-- Explanation Block -->
+                                    <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-600 space-y-1">
+                                        <div class="font-bold text-slate-700 flex items-center gap-1"><i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Penjelasan Kunci Jawaban:</div>
+                                        <p class="leading-relaxed font-normal">${q.explanation}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- RENDER DETAIL REVIEW FOR EACH QUESTION ---
+        function renderAnswerReviewHtml(q, userAnswer) {
+            if (q.type === 'single') {
+                return `
+                    <div class="space-y-1">
+                        <div>Jawaban Anda: <strong class="${userAnswer === q.correctAnswer ? 'text-emerald-600' : 'text-rose-600'}">${userAnswer !== undefined ? String.fromCharCode(65 + userAnswer) : 'Tidak Menjawab'}</strong></div>
+                        <div>Kunci Jawaban: <strong class="text-emerald-600">${String.fromCharCode(65 + q.correctAnswer)}</strong></div>
+                    </div>
+                `;
+            } else if (q.type === 'multiple') {
+                const userLetters = Array.isArray(userAnswer) ? userAnswer.map(v => String.fromCharCode(65 + v)).join(', ') : 'Tidak Menjawab';
+                const correctLetters = q.correctAnswer.map(v => String.fromCharCode(65 + v)).join(', ');
+                return `
+                    <div class="space-y-1">
+                        <div>Jawaban Anda: <strong class="text-slate-800">${userLetters}</strong></div>
+                        <div>Kunci Jawaban: <strong class="text-emerald-600">${correctLetters}</strong></div>
+                    </div>
+                `;
+            } else if (q.type === 'category') {
+                const matrixAnswers = userAnswer || {};
+                return `
+                    <div class="bg-slate-50 border border-slate-100 rounded-lg p-2.5 space-y-1.5 mt-1">
+                        ${q.rows.map(row => {
+                            const uAns = matrixAnswers[row.id] || 'Tidak Menjawab';
+                            const cAns = q.correctAnswer[row.id];
+                            return `
+                                <div class="flex items-center justify-between border-b border-dashed border-slate-200/60 pb-1 last:border-b-0 last:pb-0">
+                                    <span class="text-[11px] font-medium text-slate-600 shrink-0 mr-4">${row.text}:</span>
+                                    <div class="text-[11px]">
+                                        <span class="text-slate-500">Anda:</span> <strong class="${uAns === cAns ? 'text-emerald-600' : 'text-rose-600'}">${uAns}</strong> 
+                                        &middot; <span class="text-slate-500">Kunci:</span> <strong class="text-emerald-600">${cAns}</strong>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        window.restartTest = function() {
+            state.currentScreen = 'landing';
+            state.answers = {};
+            renderScreen();
+        };
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            renderScreen();
+        };
+    </script>
+</body>
+</html>
